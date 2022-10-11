@@ -30,12 +30,11 @@ public class SheetsController : ControllerBase
         var emails = string.Join(";", options.Emails);
         var date = options.Start.Date.ToString("yyyy-MM-dd");
         var time = options.Start.ToString("HH:mm");
-
-        var templateFile = await _driveService.Files.Get(templateId).ExecuteAsync();
-
-        if (templateFile == null) return Problem("Template not found");
-
-        var newFile = await _driveService.Files.Copy(new File(), templateFile.Id).ExecuteAsync();
+        
+        var newFile = await _driveService.Files.Copy(new File
+        {
+            Name = $"{date} [{options.GroupName}]"
+        }, templateId).ExecuteAsync();
 
         if (newFile == null) return Problem("Failed copying template");
 
@@ -94,11 +93,6 @@ public class SheetsController : ControllerBase
             Data = data,
             ValueInputOption = "USER_ENTERED"
         }, newFile.Id).ExecuteAsync();
-
-        await _driveService.Files.Update(new File
-        {
-            Name = $"{date} [{options.GroupName}]"
-        }, newFileId).ExecuteAsync();
 
         return Ok(newFileId);
     }
