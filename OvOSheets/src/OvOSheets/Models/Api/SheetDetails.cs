@@ -21,7 +21,7 @@ public enum ReservationType
     ObserverAccounts
 }
 
-public class CreateSheet
+public class SheetDetails
 {
     [JsonPropertyName("requestDatetime")] public DateTime Start { get; set; }
     [JsonPropertyName("repEmails")] public string[] Emails { get; set; }

@@ -25,15 +25,15 @@ public class SheetsController : ControllerBase
         _configuration = configuration;
     }
 
-    private async Task<ActionResult<string>> CreateNewSheet(string templateId, CreateSheet options)
+    private async Task<ActionResult<string>> CreateNewSheet(string templateId, SheetDetails sheetDetails)
     {
-        var emails = string.Join(";", options.Emails);
-        var date = options.Start.Date.ToString("yyyy-MM-dd");
-        var time = options.Start.ToString("HH:mm");
+        var emails = string.Join(";", sheetDetails.Emails);
+        var date = sheetDetails.Start.Date.ToString("yyyy-MM-dd");
+        var time = sheetDetails.Start.ToString("HH:mm");
         
         var newFile = await _driveService.Files.Copy(new File
         {
-            Name = $"{date} [{options.GroupName}]"
+            Name = $"{date} [{sheetDetails.GroupName}]"
         }, templateId).ExecuteAsync();
 
         if (newFile == null) return Problem("Failed copying template");
@@ -62,7 +62,7 @@ public class SheetsController : ControllerBase
             }
         };
 
-        switch (options.SharedStatus)
+        switch (sheetDetails.SharedStatus)
         {
             case SharedStatus.ManuallyShared:
             {
@@ -99,22 +99,22 @@ public class SheetsController : ControllerBase
 
     [HttpPost]
     [Route("new")]
-    public async Task<ActionResult<string>> CreateSheet([FromBody] CreateSheet options)
+    public async Task<ActionResult<string>> CreateSheet([FromBody] SheetDetails sheetDetails)
     {
         var ovoTemplate = _configuration["OvO:TemplateId"];
         var obsTemplate = _configuration["Obs:TemplateId"];
 
-        switch (options.ReservationType)
+        switch (sheetDetails.ReservationType)
         {
             case ReservationType.BasicJaegerAccounts:
             {
-                return await CreateNewSheet(ovoTemplate, options);
+                return await CreateNewSheet(ovoTemplate, sheetDetails);
 
                 break;
             }
             case ReservationType.ObserverAccounts:
             {
-                return await CreateNewSheet(obsTemplate, options);
+                return await CreateNewSheet(obsTemplate, sheetDetails);
 
                 break;
             }
